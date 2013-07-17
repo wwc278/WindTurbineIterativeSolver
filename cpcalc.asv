@@ -1,0 +1,64 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%PREDICTION%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%table look-up for C_L(Re_c_design,alpha) using interp 1
+% consider table look-up for C_L(Re_c,alpha) using interp2 (optional)
+
+function C_p=cpcalc(BEM,r_R,theta_p)
+global lambda B U rho R mu
+load polar.mat
+
+%the last section is ommited because of zero lift
+
+for i=1:length(BEM(end-1)phi
+    if BEM(end-1).phi<0
+    
+
+for i=1:length(r_R)-1
+    
+    alpha_p(i)=interp1(Re65e3(:,2)-BEM(i).C_L,Re65e3(:,1),0);
+    C_L_p(i)=interp1(BEM(i).alpha,BEM(i).C_L,alpha_p(i));
+    C_D_p(i)=interp1(Re65e3(:,1),Re65e3(:,3),alpha_p(i));
+    F_p(i)=interp1(BEM(i).alpha,BEM(i).F,alpha_p(i));
+    a_prime_p(i)=interp1(BEM(i).alpha,BEM(i).a_prime,alpha_p(i));
+    a_p(i)=interp1(BEM(i).alpha,BEM(i).a,alpha_p(i));
+end
+
+% alpha_p'
+% C_L_p'
+% C_D_p'
+% F_p'
+% a_prime_p'
+% a_p'
+
+figure
+plot(r_R(1:length(r_R)-1),alpha_p)
+grid on
+title('Predicted alpha vs Relative Radius')
+xlabel('Relative Radius r/R')
+ylabel('Predicted Alpha (deg.)')
+
+figure
+plot(r_R(1:length(r_R)-1),C_L_p)
+grid on
+title('Predicted C_L vs Relative Radius')
+xlabel('Relative Radius r/R')
+ylabel('Predicted C_L')
+
+figure
+plot(r_R(1:length(r_R)-1),C_D_p)
+grid on
+title('Predicted C_D vs Relative Radius')
+xlabel('Relative Radius r/R')
+ylabel('Predicted C_D')
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%solve for Cp%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+C_p_integrand=F_p.*a_prime_p.*(1-a_p).*...
+    (1-cot((alpha_p+[theta_p(1:length(theta_p)-1)]')*pi/180)./...
+    (C_L_p./C_D_p)).*[r_R(1:length(r_R)-1).^3]';
+
+C_p=8*lambda^2*trapz(r_R(1:length(r_R)-1),C_p_integrand);
+
+end
